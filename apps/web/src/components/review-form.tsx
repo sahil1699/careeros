@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,9 @@ const QUESTIONS: { key: keyof ReviewFields; label: string }[] = [
   { key: "what_next", label: "What will I build next?" },
 ];
 
+/** Render with `key={initial?.id ?? "new"}` from the parent — that remounts
+ * this fresh (re-running the lazy initializer) once async data arrives,
+ * instead of syncing props into state via an effect. */
 export function ReviewForm({
   initial,
   onSave,
@@ -24,11 +27,7 @@ export function ReviewForm({
   onSave: (fields: Partial<ReviewFields>) => void;
   saving: boolean;
 }) {
-  const [fields, setFields] = useState<Partial<ReviewFields>>({});
-
-  useEffect(() => {
-    setFields(initial ?? {});
-  }, [initial]);
+  const [fields, setFields] = useState<Partial<ReviewFields>>(() => initial ?? {});
 
   return (
     <div className="flex flex-col gap-4">

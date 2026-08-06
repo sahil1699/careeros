@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,25 +9,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useMission, useUpdateMission } from "@/hooks/use-mission";
-import type { TargetCompany } from "@/lib/types";
+import type { Mission, TargetCompany } from "@/lib/types";
 
 export default function MissionPage() {
   const { data: mission } = useMission();
   const updateMission = useUpdateMission();
 
-  const [companies, setCompanies] = useState<TargetCompany[]>([]);
-  const [newCompany, setNewCompany] = useState("");
-  const [salaryGoal, setSalaryGoal] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [northStar, setNorthStar] = useState("");
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <h1 className="font-heading text-2xl font-semibold">🎯 Mission</h1>
+      {mission && (
+        <MissionForm
+          mission={mission}
+          onSave={(patch) => updateMission.mutate(patch)}
+          saving={updateMission.isPending}
+        />
+      )}
+    </div>
+  );
+}
 
-  useEffect(() => {
-    if (!mission) return;
-    setCompanies(mission.target_companies);
-    setSalaryGoal(mission.salary_goal ?? "");
-    setDeadline(mission.deadline ?? "");
-    setNorthStar(mission.north_star ?? "");
-  }, [mission]);
+/** Mounted only once `mission` has loaded, so its local state can be
+ * lazily-initialized from props directly — no effect needed to sync it in. */
+function MissionForm({
+  mission,
+  onSave,
+  saving,
+}: {
+  mission: Mission;
+  onSave: (patch: Partial<Omit<Mission, "id">>) => void;
+  saving: boolean;
+}) {
+  const [companies, setCompanies] = useState<TargetCompany[]>(mission.target_companies);
+  const [newCompany, setNewCompany] = useState("");
+  const [salaryGoal, setSalaryGoal] = useState(mission.salary_goal ?? "");
+  const [deadline, setDeadline] = useState(mission.deadline ?? "");
+  const [northStar, setNorthStar] = useState(mission.north_star ?? "");
 
   function toggleCompany(name: string) {
     setCompanies((prev) => prev.map((c) => (c.name === name ? { ...c, checked: !c.checked } : c)));
@@ -40,7 +57,7 @@ export default function MissionPage() {
   }
 
   function save() {
-    updateMission.mutate({
+    onSave({
       target_companies: companies,
       salary_goal: salaryGoal || null,
       deadline: deadline || null,
@@ -49,9 +66,7 @@ export default function MissionPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <h1 className="font-heading text-2xl font-semibold">🎯 Mission</h1>
-
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Target Companies</CardTitle>
@@ -95,9 +110,9 @@ export default function MissionPage() {
         </CardContent>
       </Card>
 
-      <Button onClick={save} disabled={updateMission.isPending} className="self-start">
-        {updateMission.isPending ? "Saving…" : "Save"}
+      <Button onClick={save} disabled={saving} className="self-start">
+        {saving ? "Saving…" : "Save"}
       </Button>
-    </div>
+    </>
   );
 }

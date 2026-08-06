@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Checklist } from "@/components/checklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useDailyHistory, useTodayEntry, useUpdateDailyEntry } from "@/hooks/use-daily";
-import type { ChecklistItem } from "@/lib/types";
+import type { ChecklistItem, DailyEntry } from "@/lib/types";
 
 function useDebouncedSave(save: (patch: Record<string, unknown>) => void) {
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -19,34 +19,57 @@ function useDebouncedSave(save: (patch: Record<string, unknown>) => void) {
 export default function DailyPage() {
   const { data: today } = useTodayEntry();
   const { data: history } = useDailyHistory(14);
-  const updateToday = useUpdateDailyEntry(today?.entry_date ?? "");
 
-  const [win, setWin] = useState("");
-  const [learning, setLearning] = useState("");
-  const [blockedBy, setBlockedBy] = useState("");
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <h1 className="font-heading text-2xl font-semibold">📅 Daily Dashboard</h1>
 
-  useEffect(() => {
-    if (!today) return;
-    setWin(today.win ?? "");
-    setLearning(today.learning ?? "");
-    setBlockedBy(today.blocked_by ?? "");
-  }, [today]);
+      {today && <TodayForm today={today} />}
 
+      {history && history.length > 1 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>History</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm">
+            {history
+              .filter((d) => d.entry_date !== today?.entry_date)
+              .map((d) => (
+                <div key={d.id} className="flex gap-2">
+                  <span className="text-muted-foreground shrink-0">{d.entry_date}</span>
+                  <span>{d.win || <span className="text-muted-foreground">—</span>}</span>
+                </div>
+              ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+/** Mounted only once `today` has loaded, so win/learning/blocked_by can be
+ * lazily-initialized from props directly — no effect needed to sync it in. */
+function TodayForm({ today }: { today: DailyEntry }) {
+  const updateToday = useUpdateDailyEntry(today.entry_date);
   const debouncedSave = useDebouncedSave((patch) => updateToday.mutate(patch));
+
+  const [win, setWin] = useState(today.win ?? "");
+  const [learning, setLearning] = useState(today.learning ?? "");
+  const [blockedBy, setBlockedBy] = useState(today.blocked_by ?? "");
 
   function onChecklistChange(items: ChecklistItem[]) {
     updateToday.mutate({ checklist: items });
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <h1 className="font-heading text-2xl font-semibold">📅 Daily Dashboard</h1>
-
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Today&apos;s Goal</CardTitle>
         </CardHeader>
-        <CardContent>{today && <Checklist items={today.checklist} onChange={onChecklistChange} />}</CardContent>
+        <CardContent>
+          <Checklist items={today.checklist} onChange={onChecklistChange} />
+        </CardContent>
       </Card>
 
       <Card>
@@ -86,24 +109,6 @@ export default function DailyPage() {
           </div>
         </CardContent>
       </Card>
-
-      {history && history.length > 1 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>History</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-sm">
-            {history
-              .filter((d) => d.entry_date !== today?.entry_date)
-              .map((d) => (
-                <div key={d.id} className="flex gap-2">
-                  <span className="text-muted-foreground shrink-0">{d.entry_date}</span>
-                  <span>{d.win || <span className="text-muted-foreground">—</span>}</span>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    </>
   );
 }

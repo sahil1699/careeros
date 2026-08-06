@@ -39,7 +39,12 @@ export default function ReviewsPage() {
               <CardTitle>Week of {weekStart}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ReviewForm initial={thisWeek} onSave={(f) => upsertWeekly.mutate(f)} saving={upsertWeekly.isPending} />
+              <ReviewForm
+                key={thisWeek?.id ?? "new"}
+                initial={thisWeek}
+                onSave={(f) => upsertWeekly.mutate(f)}
+                saving={upsertWeekly.isPending}
+              />
             </CardContent>
           </Card>
           <PastReviews items={weeklyReviews?.filter((r) => r.week_start !== weekStart)} dateKey="week_start" />
@@ -52,6 +57,7 @@ export default function ReviewsPage() {
             </CardHeader>
             <CardContent>
               <ReviewForm
+                key={thisMonth?.id ?? "new"}
                 initial={thisMonth}
                 onSave={(f) => upsertMonthly.mutate(f)}
                 saving={upsertMonthly.isPending}
