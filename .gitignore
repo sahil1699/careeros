@@ -1,0 +1,29 @@
+# --- root / misc ---
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# --- editors / local tooling ---
+.qodo/
+.claude/
+
+# --- node / web ---
+node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts
+apps/web/.vercel
+
+# --- python / api ---
+__pycache__/
+*.pyc
+apps/api/.venv/
+apps/api/venv/
+apps/api/*.egg-info/
+apps/api/.pytest_cache/
+apps/api/.ruff_cache/
+
+# --- misc scratch files (not part of the project) ---
+Lifospass.txt
