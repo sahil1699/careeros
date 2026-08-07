@@ -76,3 +76,105 @@ export interface MonthlyReview extends ReviewFields {
   id: number;
   month_start: string;
 }
+
+// --- Slice 2: Learning trackers ---
+
+export interface SystemDesignTopic {
+  id: number;
+  topic: string;
+  read: boolean;
+  diagram: boolean;
+  notes: boolean;
+  implemented: boolean;
+}
+
+export interface DsaPattern {
+  id: number;
+  pattern: string;
+  category: string | null;
+  understanding: number; // 0-5 stars
+  confidence: number; // 0-5 stars
+  needs_revision: boolean;
+  notes: string | null;
+}
+
+export type AiTopicStatus = "not_started" | "in_progress" | "done";
+
+export interface AiTopic {
+  id: number;
+  topic: string;
+  status: AiTopicStatus;
+  notes: string | null;
+  mini_project: string | null;
+}
+
+export type ReadingStatus = "to_read" | "reading" | "done";
+
+export interface ReadingListItem {
+  id: number;
+  title: string;
+  source: string | null;
+  status: ReadingStatus;
+  notes: string | null;
+}
+
+// --- Slice 3: Content tracker + Notes ---
+
+export type ContentStage = "idea" | "writing" | "scheduled" | "posted";
+export type ContentType = "tweet" | "linkedin" | "blog" | "readme";
+
+export interface ContentIdea {
+  id: number;
+  idea: string;
+  stage: ContentStage;
+  content_type: ContentType;
+  notes: string | null;
+  repurposed_from_id: number | null;
+}
+
+export interface NotePage {
+  id: number;
+  topic: string;
+  content: string | null;
+  tags: string[];
+}
+
+// --- Slice 4: Career / Applications ---
+
+export type CompanyStatus = "researching" | "target" | "applied" | "interviewing" | "offer" | "rejected";
+export type ApplicationStatus = "applied" | "screening" | "interviewing" | "offer" | "rejected" | "withdrawn";
+
+export interface Interview {
+  id: number;
+  application_id: number;
+  round: string;
+  interview_date: string | null;
+  notes: string | null;
+  outcome: string | null;
+}
+
+export interface Application {
+  id: number;
+  company_id: number;
+  role: string;
+  applied_date: string | null;
+  status: ApplicationStatus;
+  notes: string | null;
+  interviews: Interview[];
+}
+
+export interface Company {
+  id: number;
+  name: string;
+  status: CompanyStatus;
+  url: string | null;
+  notes: string | null;
+  applications: Application[];
+}
+
+export interface ResumeVersion {
+  id: number;
+  label: string;
+  file_url: string | null;
+  notes: string | null;
+}

@@ -14,6 +14,10 @@ const LINKS = [
   { href: "/projects", label: "💻 Projects" },
   { href: "/reviews", label: "📈 Reviews" },
   { href: "/career-wins", label: "🏆 Career Wins" },
+  { href: "/learning", label: "🧠 Learning" },
+  { href: "/content", label: "✍️ Content" },
+  { href: "/notes", label: "📖 Notes" },
+  { href: "/career", label: "🎯 Applications" },
 ];
 
 export function Nav() {
