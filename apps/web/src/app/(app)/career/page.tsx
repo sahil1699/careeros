@@ -174,7 +174,7 @@ function CompanyDetail({
 }) {
   const updateCompany = useUpdateCompany(company.id);
   const createApplication = useCreateApplication(company.id);
-  const deleteApplication = useDeleteApplication(company.id);
+  const deleteApplication = useDeleteApplication();
   const [url, setUrl] = useState(company.url ?? "");
   const [notes, setNotes] = useState(company.notes ?? "");
   const [role, setRole] = useState("");
@@ -296,10 +296,10 @@ function ApplicationDetail({
   application: Application;
   onBack: () => void;
 }) {
-  const updateApplication = useUpdateApplication(company.id);
-  const createInterview = useCreateInterview(company.id);
-  const updateInterview = useUpdateInterview(company.id);
-  const deleteInterview = useDeleteInterview(company.id);
+  const updateApplication = useUpdateApplication();
+  const createInterview = useCreateInterview();
+  const updateInterview = useUpdateInterview();
+  const deleteInterview = useDeleteInterview();
   const [notes, setNotes] = useState(application.notes ?? "");
   const [round, setRound] = useState("");
 

@@ -39,52 +39,52 @@ export function useCreateApplication(companyId: number) {
   return useMutation({
     mutationFn: (payload: Pick<Application, "role"> & Partial<Application>) =>
       api.post<Application>(`/companies/${companyId}/applications`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies", companyId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
   });
 }
 
-export function useUpdateApplication(companyId: number) {
+export function useUpdateApplication() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ applicationId, ...payload }: { applicationId: number } & Partial<Application>) =>
       api.patch<Application>(`/companies/applications/${applicationId}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies", companyId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
   });
 }
 
-export function useDeleteApplication(companyId: number) {
+export function useDeleteApplication() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (applicationId: number) => api.delete(`/companies/applications/${applicationId}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies", companyId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
   });
 }
 
 // Interviews
 
-export function useCreateInterview(companyId: number) {
+export function useCreateInterview() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ applicationId, ...payload }: { applicationId: number } & Pick<Interview, "round"> & Partial<Interview>) =>
       api.post<Interview>(`/companies/applications/${applicationId}/interviews`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies", companyId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
   });
 }
 
-export function useUpdateInterview(companyId: number) {
+export function useUpdateInterview() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ interviewId, ...payload }: { interviewId: number } & Partial<Interview>) =>
       api.patch<Interview>(`/companies/interviews/${interviewId}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies", companyId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
   });
 }
 
-export function useDeleteInterview(companyId: number) {
+export function useDeleteInterview() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (interviewId: number) => api.delete(`/companies/interviews/${interviewId}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies", companyId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
   });
 }
 
