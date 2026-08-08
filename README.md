@@ -2,6 +2,8 @@
 
 > An AI-powered operating system for software engineers — a personal, low-maintenance tracker for a focused 6-month plan to grow from backend engineer to AI systems engineer.
 
+**Live**: https://careeros-virid-nine.vercel.app (passphrase-gated) · **API**: https://courteous-creativity-production-78ee.up.railway.app
+
 Built for daily use, not as a demo: a single page to open every morning (today's checklist, active project, mission), plus dedicated trackers for projects, system design, DSA patterns, AI topics, content, notes, and job applications — all backed by a real Postgres database instead of another Notion doc.
 
 ## Features
