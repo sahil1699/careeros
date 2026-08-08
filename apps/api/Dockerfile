@@ -14,4 +14,6 @@ COPY . .
 EXPOSE 8000
 
 # Railway sets $PORT; default to 8000 for local `docker run`.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# `app.seed` is idempotent — safe to run on every boot, and it's how the
+# managed prod DB gets the pre-seed content without needing external access.
+CMD ["sh", "-c", "alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

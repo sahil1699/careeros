@@ -6,6 +6,7 @@ on:
     paths: ["apps/api/**", ".github/workflows/api.yml"]
   pull_request:
     paths: ["apps/api/**", ".github/workflows/api.yml"]
+  workflow_dispatch:
 
 defaults:
   run:
@@ -44,13 +45,13 @@ jobs:
 
   deploy:
     needs: ci
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Deploy to Railway
         run: |
           npm i -g @railway/cli
-          railway up --service api --detach
+          railway up --service courteous-creativity --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
