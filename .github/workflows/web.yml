@@ -24,8 +24,15 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - run: npm ci
       - run: npm run lint
-      - run: npx tsc --noEmit
+      # `next build` runs its own full TypeScript check — a standalone `tsc --noEmit`
+      # fails on a fresh checkout because Next's ambient types (e.g. LayoutProps)
+      # aren't generated until a build/dev run happens.
       - run: npm run build
+        env:
+          API_BASE_URL: http://localhost:8000
+          INTERNAL_API_KEY: ci-placeholder
+          SESSION_PASSPHRASE: ci-placeholder
+          SESSION_SECRET: ci-placeholder-ci-placeholder-ci-placeholder
 
   deploy:
     needs: ci
