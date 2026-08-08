@@ -8,13 +8,12 @@ on:
     paths: ["apps/web/**", ".github/workflows/web.yml"]
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: apps/web
-
 jobs:
   ci:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
