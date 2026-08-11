@@ -31,15 +31,23 @@ export default function DailyPage() {
           <CardHeader>
             <CardTitle>History</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-sm">
+          <CardContent className="flex flex-col gap-3 text-sm">
             {history
               .filter((d) => d.entry_date !== today?.entry_date)
-              .map((d) => (
-                <div key={d.id} className="flex gap-2">
-                  <span className="text-muted-foreground shrink-0">{d.entry_date}</span>
-                  <span>{d.win || <span className="text-muted-foreground">—</span>}</span>
-                </div>
-              ))}
+              .map((d) => {
+                const completed = d.checklist.filter((item) => item.done).map((item) => item.label);
+                return (
+                  <div key={d.id} className="flex flex-col gap-0.5 border-b pb-3 last:border-0 last:pb-0">
+                    <span className="text-muted-foreground text-xs">{d.entry_date}</span>
+                    {completed.length > 0 ? (
+                      <span>{completed.join(", ")}</span>
+                    ) : (
+                      <span className="text-muted-foreground">No tasks completed</span>
+                    )}
+                    {d.win && <span className="text-muted-foreground text-xs">🏆 {d.win}</span>}
+                  </div>
+                );
+              })}
           </CardContent>
         </Card>
       )}

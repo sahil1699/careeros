@@ -27,3 +27,6 @@ apps/api/.ruff_cache/
 
 # --- misc scratch files (not part of the project) ---
 Lifospass.txt
+
+# --- personal notes containing live secrets — never publish these ---
+docs/postProject/Login.md

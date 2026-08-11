@@ -14,6 +14,20 @@ export function useDailyHistory(limit = 14) {
   });
 }
 
+export interface ArchiveStatus {
+  pending: { year: number; month: number; days_left: number } | null;
+}
+
+/** Called once per app load (see AppLayout). Also runs the server-side
+ * grace-period cleanup as a side effect — see archive_status in daily.py. */
+export function useArchiveStatus() {
+  return useQuery({
+    queryKey: ["daily", "archive-status"],
+    queryFn: () => api.get<ArchiveStatus>("/daily-entries/archive-status"),
+    staleTime: 60 * 60 * 1000, // once per hour is plenty for a once-a-month event
+  });
+}
+
 export function useUpdateDailyEntry(entryDate: string) {
   const queryClient = useQueryClient();
   return useMutation({

@@ -24,11 +24,16 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ path: s
     body: hasBody ? await req.text() : undefined,
   });
 
-  const body = await upstream.text();
-  return new NextResponse(body || null, {
-    status: upstream.status,
-    headers: { "Content-Type": upstream.headers.get("Content-Type") ?? "application/json" },
-  });
+  // arrayBuffer (not text) so binary responses — e.g. the .xlsx export —
+  // pass through untouched instead of being mangled by text re-encoding.
+  const body = await upstream.arrayBuffer();
+  const headers: Record<string, string> = {
+    "Content-Type": upstream.headers.get("Content-Type") ?? "application/json",
+  };
+  const disposition = upstream.headers.get("Content-Disposition");
+  if (disposition) headers["Content-Disposition"] = disposition;
+
+  return new NextResponse(body, { status: upstream.status, headers });
 }
 
 export {
