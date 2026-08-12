@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import require_internal_key
 from app.db.session import get_db
-from app.models.learning import AiTopic, DsaPattern, ReadingListItem, SystemDesignTopic
+from app.models.learning import AiTopic, DsaPattern, DsaQuestion, ReadingListItem, SystemDesignTopic
 from app.schemas.learning import (
     AiTopicCreate,
     AiTopicOut,
@@ -12,6 +12,9 @@ from app.schemas.learning import (
     DsaPatternCreate,
     DsaPatternOut,
     DsaPatternUpdate,
+    DsaQuestionCreate,
+    DsaQuestionOut,
+    DsaQuestionUpdate,
     ReadingListItemCreate,
     ReadingListItemOut,
     ReadingListItemUpdate,
@@ -70,7 +73,7 @@ def delete_system_design_topic(topic_id: int, db: Session = Depends(get_db)) -> 
 
 @dsa_router.get("", response_model=list[DsaPatternOut])
 def list_dsa_patterns(db: Session = Depends(get_db)) -> list[DsaPattern]:
-    stmt = select(DsaPattern).order_by(DsaPattern.pattern)
+    stmt = select(DsaPattern).options(selectinload(DsaPattern.questions)).order_by(DsaPattern.pattern)
     return list(db.scalars(stmt))
 
 
@@ -101,6 +104,38 @@ def delete_dsa_pattern(pattern_id: int, db: Session = Depends(get_db)) -> None:
     if pattern is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "DSA pattern not found")
     db.delete(pattern)
+    db.commit()
+
+
+@dsa_router.post("/{pattern_id}/questions", response_model=DsaQuestionOut, status_code=status.HTTP_201_CREATED)
+def create_dsa_question(pattern_id: int, payload: DsaQuestionCreate, db: Session = Depends(get_db)) -> DsaQuestion:
+    if db.get(DsaPattern, pattern_id) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "DSA pattern not found")
+    question = DsaQuestion(pattern_id=pattern_id, **payload.model_dump())
+    db.add(question)
+    db.commit()
+    db.refresh(question)
+    return question
+
+
+@dsa_router.patch("/questions/{question_id}", response_model=DsaQuestionOut)
+def update_dsa_question(question_id: int, payload: DsaQuestionUpdate, db: Session = Depends(get_db)) -> DsaQuestion:
+    question = db.get(DsaQuestion, question_id)
+    if question is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Question not found")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(question, field, value)
+    db.commit()
+    db.refresh(question)
+    return question
+
+
+@dsa_router.delete("/questions/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_dsa_question(question_id: int, db: Session = Depends(get_db)) -> None:
+    question = db.get(DsaQuestion, question_id)
+    if question is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Question not found")
+    db.delete(question)
     db.commit()
 
 

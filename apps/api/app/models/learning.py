@@ -1,7 +1,7 @@
 import enum
 
-from sqlalchemy import Boolean, Enum, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.models.mixins import TimestampMixin
@@ -32,7 +32,26 @@ class DsaPattern(Base, TimestampMixin):
     understanding: Mapped[int] = mapped_column(Integer, default=0)  # 1-5 stars
     confidence: Mapped[int] = mapped_column(Integer, default=0)  # 1-5 stars
     needs_revision: Mapped[bool] = mapped_column(Boolean, default=True)
+    notes: Mapped[str | None] = mapped_column(Text, default=None)  # generic, pattern-level notes
+
+    questions: Mapped[list["DsaQuestion"]] = relationship(
+        back_populates="pattern", cascade="all, delete-orphan", order_by="DsaQuestion.id"
+    )
+
+
+class DsaQuestion(Base, TimestampMixin):
+    """One row per practiced question under a pattern — its link + notes.
+    Separate from DsaPattern.notes, which stays a single generic note for
+    the pattern as a whole."""
+
+    __tablename__ = "dsa_questions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    pattern_id: Mapped[int] = mapped_column(ForeignKey("dsa_patterns.id", ondelete="CASCADE"), index=True)
+    link: Mapped[str | None] = mapped_column(String(500), default=None)
     notes: Mapped[str | None] = mapped_column(Text, default=None)
+
+    pattern: Mapped[DsaPattern] = relationship(back_populates="questions")
 
 
 class AiTopicStatus(enum.StrEnum):

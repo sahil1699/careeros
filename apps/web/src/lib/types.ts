@@ -88,6 +88,13 @@ export interface SystemDesignTopic {
   implemented: boolean;
 }
 
+export interface DsaQuestion {
+  id: number;
+  pattern_id: number;
+  link: string | null;
+  notes: string | null;
+}
+
 export interface DsaPattern {
   id: number;
   pattern: string;
@@ -95,7 +102,8 @@ export interface DsaPattern {
   understanding: number; // 0-5 stars
   confidence: number; // 0-5 stars
   needs_revision: boolean;
-  notes: string | null;
+  notes: string | null; // generic, pattern-level notes
+  questions: DsaQuestion[]; // one row per practiced question: a link + its own notes
 }
 
 export type AiTopicStatus = "not_started" | "in_progress" | "done";

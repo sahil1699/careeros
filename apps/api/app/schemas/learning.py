@@ -30,6 +30,25 @@ class SystemDesignTopicUpdate(BaseModel):
     implemented: bool | None = None
 
 
+class DsaQuestionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    pattern_id: int
+    link: str | None
+    notes: str | None
+
+
+class DsaQuestionCreate(BaseModel):
+    link: str | None = None
+    notes: str | None = None
+
+
+class DsaQuestionUpdate(BaseModel):
+    link: str | None = None
+    notes: str | None = None
+
+
 class DsaPatternOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -40,6 +59,7 @@ class DsaPatternOut(BaseModel):
     confidence: int
     needs_revision: bool
     notes: str | None
+    questions: list[DsaQuestionOut]
 
 
 class DsaPatternCreate(BaseModel):

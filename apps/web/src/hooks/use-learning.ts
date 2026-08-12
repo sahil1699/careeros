@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
-import type { AiTopic, DsaPattern, ReadingListItem, SystemDesignTopic } from "@/lib/types";
+import type { AiTopic, DsaPattern, DsaQuestion, ReadingListItem, SystemDesignTopic } from "@/lib/types";
 
 // System Design Topics
 
@@ -49,6 +49,34 @@ export function useUpdateDsaPattern() {
   return useMutation({
     mutationFn: ({ id, ...payload }: { id: number } & Partial<DsaPattern>) =>
       api.patch<DsaPattern>(`/dsa-patterns/${id}`, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dsa-patterns"] }),
+  });
+}
+
+// DSA Questions — one row (link + notes) per practiced question, under a pattern
+
+export function useCreateDsaQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ patternId, ...payload }: { patternId: number } & Partial<DsaQuestion>) =>
+      api.post<DsaQuestion>(`/dsa-patterns/${patternId}/questions`, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dsa-patterns"] }),
+  });
+}
+
+export function useUpdateDsaQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...payload }: { id: number } & Partial<DsaQuestion>) =>
+      api.patch<DsaQuestion>(`/dsa-patterns/questions/${id}`, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dsa-patterns"] }),
+  });
+}
+
+export function useDeleteDsaQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.delete(`/dsa-patterns/questions/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dsa-patterns"] }),
   });
 }

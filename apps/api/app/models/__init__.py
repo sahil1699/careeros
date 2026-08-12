@@ -8,6 +8,7 @@ from app.models.daily import DailyEntry  # noqa: F401
 from app.models.learning import (  # noqa: F401
     AiTopic,
     DsaPattern,
+    DsaQuestion,
     ReadingListItem,
     SystemDesignTopic,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "DailyEntry",
     "AiTopic",
     "DsaPattern",
+    "DsaQuestion",
     "ReadingListItem",
     "SystemDesignTopic",
     "WeeklyMetric",

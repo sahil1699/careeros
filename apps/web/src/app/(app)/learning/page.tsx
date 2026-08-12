@@ -18,18 +18,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useAiTopics,
+  useCreateDsaQuestion,
   useCreateReadingListItem,
   useCreateSystemDesignTopic,
+  useDeleteDsaQuestion,
   useDeleteReadingListItem,
   useDsaPatterns,
   useReadingList,
   useSystemDesignTopics,
   useUpdateAiTopic,
   useUpdateDsaPattern,
+  useUpdateDsaQuestion,
   useUpdateReadingListItem,
   useUpdateSystemDesignTopic,
 } from "@/hooks/use-learning";
-import type { AiTopic, AiTopicStatus, DsaPattern, ReadingStatus, SystemDesignTopic } from "@/lib/types";
+import type {
+  AiTopic,
+  AiTopicStatus,
+  DsaPattern,
+  DsaQuestion,
+  ReadingStatus,
+  SystemDesignTopic,
+} from "@/lib/types";
 
 export default function LearningPage() {
   return (
@@ -185,16 +195,117 @@ function DsaPatternCard({ pattern }: { pattern: DsaPattern }) {
           value={pattern.confidence}
           onChange={(v) => updatePattern.mutate({ id: pattern.id, confidence: v })}
         />
+        <DsaQuestionRows patternId={pattern.id} questions={pattern.questions} />
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           onBlur={() => updatePattern.mutate({ id: pattern.id, notes: notes || null })}
-          placeholder="Notes…"
+          placeholder="General notes for this pattern…"
           rows={2}
           className="text-xs"
         />
       </CardContent>
     </Card>
+  );
+}
+
+function DsaQuestionRows({ patternId, questions }: { patternId: number; questions: DsaQuestion[] }) {
+  const createQuestion = useCreateDsaQuestion();
+  const updateQuestion = useUpdateDsaQuestion();
+  const deleteQuestion = useDeleteDsaQuestion();
+  const [newLink, setNewLink] = useState("");
+  const [newNotes, setNewNotes] = useState("");
+
+  function addRow() {
+    if (!newLink.trim() && !newNotes.trim()) return;
+    createQuestion.mutate({ patternId, link: newLink.trim() || null, notes: newNotes.trim() || null });
+    setNewLink("");
+    setNewNotes("");
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-muted-foreground">Questions</span>
+      {questions.map((q) => (
+        <DsaQuestionRow
+          key={q.id}
+          question={q}
+          onUpdate={(patch) => updateQuestion.mutate({ id: q.id, ...patch })}
+          onDelete={() => deleteQuestion.mutate(q.id)}
+        />
+      ))}
+      <div className="flex items-center gap-1">
+        <Input
+          value={newLink}
+          onChange={(e) => setNewLink(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addRow()}
+          placeholder="Question link…"
+          className="h-7 flex-1 text-xs"
+        />
+        <Input
+          value={newNotes}
+          onChange={(e) => setNewNotes(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addRow()}
+          placeholder="Notes…"
+          className="h-7 flex-1 text-xs"
+        />
+        <Button type="button" size="sm" variant="secondary" className="h-7 shrink-0 px-2 text-xs" onClick={addRow}>
+          Add
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function DsaQuestionRow({
+  question,
+  onUpdate,
+  onDelete,
+}: {
+  question: DsaQuestion;
+  onUpdate: (patch: Partial<Pick<DsaQuestion, "link" | "notes">>) => void;
+  onDelete: () => void;
+}) {
+  const [link, setLink] = useState(question.link ?? "");
+  const [notes, setNotes] = useState(question.notes ?? "");
+
+  return (
+    <div className="flex items-center gap-1">
+      <Input
+        value={link}
+        onChange={(e) => setLink(e.target.value)}
+        onBlur={() => onUpdate({ link: link.trim() || null })}
+        placeholder="Link…"
+        className="h-7 flex-1 text-xs"
+      />
+      <Input
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        onBlur={() => onUpdate({ notes: notes.trim() || null })}
+        placeholder="Notes…"
+        className="h-7 flex-1 text-xs"
+      />
+      {link.startsWith("http") && (
+        <a
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+          className="shrink-0 px-0.5 text-xs underline underline-offset-2"
+          aria-label="Open question link"
+        >
+          ↗
+        </a>
+      )}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="h-7 shrink-0 px-1.5 text-xs"
+        onClick={onDelete}
+      >
+        ✕
+      </Button>
+    </div>
   );
 }
 

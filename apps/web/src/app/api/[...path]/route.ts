@@ -26,12 +26,18 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ path: s
 
   // arrayBuffer (not text) so binary responses — e.g. the .xlsx export —
   // pass through untouched instead of being mangled by text re-encoding.
-  const body = await upstream.arrayBuffer();
+  const buffer = await upstream.arrayBuffer();
   const headers: Record<string, string> = {
     "Content-Type": upstream.headers.get("Content-Type") ?? "application/json",
   };
   const disposition = upstream.headers.get("Content-Disposition");
   if (disposition) headers["Content-Disposition"] = disposition;
+
+  // The Fetch spec forbids a body on null-body statuses (204/205/304) — every
+  // DELETE endpoint returns 204, so this must stay null even when the buffer
+  // is just empty, not merely falsy-checked (an empty ArrayBuffer is truthy).
+  const nullBodyStatus = upstream.status === 204 || upstream.status === 205 || upstream.status === 304;
+  const body = nullBodyStatus ? null : buffer;
 
   return new NextResponse(body, { status: upstream.status, headers });
 }
